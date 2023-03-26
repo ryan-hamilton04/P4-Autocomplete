@@ -8,6 +8,8 @@ import java.util.Comparator;
  *
  * @author owen astrachan
  * @date October 8, 2020
+ * @author Ryan Hamilton
+ * @date March 11, 2023
  */
 public class    PrefixComparator implements Comparator<Term> {
 
@@ -42,6 +44,15 @@ public class    PrefixComparator implements Comparator<Term> {
     public int compare(Term v, Term w) {
         // change this to use myPrefixSize as specified,
         // replacing line below with code
-        return v.getWord().compareTo(w.getWord());
+        String vPrefix = v.getWord().substring(0, Math.min(myPrefixSize, v.getWord().length()));
+        String wPrefix = w.getWord().substring(0, Math.min(myPrefixSize, w.getWord().length()));
+        for (int i = 0; i < Math.min(myPrefixSize, Math.min(v.getWord().length(), w.getWord().length())); i++) {
+            char vChar = vPrefix.charAt(i);
+            char wChar = wPrefix.charAt(i);
+            if (vChar != wChar) {
+                return vChar - wChar;
+            }
+        }
+        return vPrefix.compareTo(wPrefix);
     }
 }

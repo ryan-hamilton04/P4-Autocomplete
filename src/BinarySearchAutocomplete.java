@@ -8,6 +8,7 @@ import java.util.*;
  * @author Austin Lu, adapted from Kevin Wayne
  * @author Jeff Forbes
  * @author Owen Astrachan in Fall 2018, revised API
+ * @author Ryan Hamilton March 25, 2023
  */
 public class BinarySearchAutocomplete implements Autocompletor {
 
@@ -100,21 +101,40 @@ public class BinarySearchAutocomplete implements Autocompletor {
 	@Override
 	public List<Term> topMatches(String prefix, int k) {
 		if (k < 0) {
-			throw new IllegalArgumentException("Illegal value of k:"+k);
+			throw new IllegalArgumentException("Illegal value of k:" + k);
 		}
-
-		Term dummy = new Term(prefix,0);
+	
+		Term dummy = new Term(prefix, 0);
 		PrefixComparator comp = PrefixComparator.getComparator(prefix.length());
 		int first = firstIndexOf(myTerms, dummy, comp);
 		int last = lastIndexOf(myTerms, dummy, comp);
-
-		if (first == -1) {               // prefix not found
+	
+		if (first == -1 ||k==0 ) { // prefix not found
 			return new ArrayList<>();
 		}
-
-		// write code here for P5 assignment
-
-		return null;
+	
+		PriorityQueue<Term> pq = new PriorityQueue<>(k, Comparator.comparing(Term::getWeight));
+	
+		// add all matching terms to priority queue, keeping only the k heaviest
+		for (int i = first; i <= last; i++) {
+			if (!myTerms[i].getWord().startsWith(prefix)) {
+				continue; // don't process if doesn't begin with prefix
+			}
+			if (pq.size() < k) {
+				pq.add(myTerms[i]);
+			} else if (pq.peek().getWeight() < myTerms[i].getWeight()) {
+				pq.remove();
+				pq.add(myTerms[i]);
+		
+			}
+		}
+	
+		List<Term> result = new ArrayList<>(pq.size());
+		while (!pq.isEmpty()) {
+			result.add(pq.remove());
+		}
+		Collections.reverse(result); // reverse order to return heaviest matches first
+		return result;
 	
 	}
 
